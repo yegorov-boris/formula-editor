@@ -10,17 +10,17 @@ class Node extends React.Component {
     /**
      * Render the math once the node is mounted
      */
-    componentDidMount() {
-        this.typeset()
-    }
+    // componentDidMount() {
+    //     this.typeset()
+    // }
 
     /**
      * Update the jax, force update if the display mode changed
      */
-    componentDidUpdate(prevProps) {
-        const forceUpdate = prevProps.inline !== this.props.inline || prevProps.children !== this.props.children
-        this.typeset(forceUpdate)
-    }
+    // componentDidUpdate(prevProps) {
+    //     const forceUpdate = prevProps.inline !== this.props.inline || prevProps.children !== this.props.children
+    //     this.typeset(forceUpdate)
+    // }
 
     /**
      * Prevent update when the source has not changed
@@ -56,27 +56,15 @@ class Node extends React.Component {
         }
     }
 
-    /**
-     * Update math in the node
-     * @param { Boolean } forceUpdate
-     */
-    typeset(forceUpdate) {
+    typeset(text) {
         const { MathJax } = this.context
 
         if (!MathJax) {
             throw Error("Could not find MathJax while attempting typeset! Probably MathJax script hasn't been loaded or MathJax.Context is not in the hierarchy")
         }
 
-        const text = this.props.children
-
-        if (forceUpdate) {
-            this.clear()
-        }
-
-        if (forceUpdate || !this.script) {
-            this.setScriptText(text)
-        }
-
+        this.clear()
+        this.setScriptText(text)
         MathJax.Hub.Queue(
             MathJax.Hub.Reprocess(this.script, this.props.onRender)
         );
@@ -87,6 +75,8 @@ class Node extends React.Component {
      * @param { String } text
      */
     setScriptText(text) {
+        console.log("-------")
+        console.log(text)
         const inline = this.props.inline
         const type = types[this.context.input]
         if (!this.script) {
@@ -104,7 +94,11 @@ class Node extends React.Component {
     }
 
     render() {
-        return React.createElement('span', { ref: 'node' })
+        return (
+            <div ref="node" className="Text">
+                <input type="text" onChange={event => this.typeset(event.target.value)} />
+            </div>
+        )
     }
 }
 

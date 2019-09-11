@@ -5,3 +5,8 @@
     padding: 10px;
     background-color: lightgrey;
 }
+
+.Text, .Text input {
+    width: 100%;
+    margin: auto;
+}
