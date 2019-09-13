@@ -1,17 +1,8 @@
 import React from 'react';
 import './App.css';
-import Context from './Context'
 import Node from './Node'
 
 function App() {
-    const options = {
-        tex2jax: {
-            inlineMath: [["$","$"],["\\(","\\)"]]
-        },
-        extensions: ["tex2jax.js", "TeX/AMSmath.js"],
-        jax: ["input/TeX", "output/SVG"],
-    };
-
   return (
     <div className="App">
         <div id="foo">
@@ -21,11 +12,7 @@ function App() {
             </svg>
         </div>
         <div>
-            <Context input='tex' options={options}>
-                <div>
-                    <Node />
-                </div>
-            </Context>
+            <Node />
         </div>
     </div>
   );

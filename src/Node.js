@@ -4,37 +4,67 @@ import canvg from 'canvg'
 import { saveAs } from 'file-saver'
 
 class Node extends React.Component {
-    constructor(props) {
-        super(props);
-        this.node = React.createRef()
-    }
-
-    componentDidMount() {
-        this.renderMath()
-    }
-
-    componentDidUpdate() {
-        this.renderMath()
-    }
-
-    renderMath() {
-        const { MathJax } = this.context;
-        MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.node.current]);
-    }
-
-    updateMath(tex) {
-        const { MathJax } = this.context;
-        if (!MathJax) {
-            throw Error("Could not find MathJax while attempting typeset! Probably MathJax script hasn't been loaded or MathJax.Context is not in the hierarchy")
+    clear() {
+        const {MathJax} = window;
+        if (!this.script) {
+            return
         }
 
-        MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.node.current]);
-        var math = MathJax.Hub.getAllJax("MathOutput")[0];
-        MathJax.Hub.queue.Push([
-            "Text",
-            math,
-            "\\displaystyle{" + tex + "}"
-        ]);
+        const jax = MathJax.Hub.getJaxFor(this.script);
+        if (jax) {
+            jax.Remove()
+        }
+    }
+
+    typeset(text) {
+        const {MathJax} = window;
+        if (!MathJax) {
+            throw Error("Could not find MathJax while attempting typeset! Probably MathJax script hasn't been loaded")
+        }
+
+        this.clear();
+        this.setScriptText(text);
+        MathJax.Hub.Queue(
+            MathJax.Hub.Reprocess(this.script, function() {})
+        );
+    }
+
+    setScriptText(text) {
+        if (!this.script) {
+            this.script = document.createElement('script');
+            this.script.type = 'math/tex; mode=SVG';
+            this.refs.node.appendChild(this.script)
+        }
+
+        const content = "\\displaystyle{" + text + "}";
+        if ('text' in this.script) {
+            // IE8, etc
+            this.script.text = content
+        } else {
+            this.script.textContent = content
+        }
+    }
+
+    updateMath(text) {
+        const {MathJax} = window;
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [["$","$"],["\\(","\\)"]]
+            },
+            extensions: ["tex2jax.js", "TeX/AMSmath.js"],
+            jax: ["input/TeX", "output/SVG"],
+            SVG: {
+                scale: 120
+            },
+        });
+        this.typeset(text);
+        // const math = MathJax.Hub.getAllJax("MathOutput")[0];
+        // math.outputJax = 'SVG';
+        // MathJax.Hub.queue.Push([
+        //     "Text",
+        //     math,
+        //     "\\displaystyle{" + tex + "}"
+        // ]);
     }
 
     saveJpeg() {
@@ -42,7 +72,7 @@ class Node extends React.Component {
         const canvas = document.createElement('canvas');
         canvg(canvas, svg);
         canvas.toBlob(function(blob) {
-            saveAs(blob, "pretty-image.jpg");
+            saveAs(blob, Date.now() + ".jpg");
         });
     }
 
@@ -56,9 +86,6 @@ class Node extends React.Component {
                         onChange={event => this.updateMath(event.target.value)}
                     />
                 </div>
-                <div id="MathOutput">
-                    You typed: ${}$
-                </div>
                 <div class="Save">
                     <button onClick={() => this.saveJpeg()}>save as jpeg</button>
                 </div>
@@ -69,10 +96,6 @@ class Node extends React.Component {
 
 Node.propTypes = {
     children: PropTypes.node.isRequired,
-};
-
-Node.contextTypes = {
-    MathJax: PropTypes.object,
 };
 
 export default Node
