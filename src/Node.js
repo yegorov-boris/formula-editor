@@ -1,121 +1,78 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-
-const types = {
-    ascii: 'asciimath',
-    tex: 'tex'
-}
+import canvg from 'canvg'
+import { saveAs } from 'file-saver'
 
 class Node extends React.Component {
-    /**
-     * Render the math once the node is mounted
-     */
-    // componentDidMount() {
-    //     this.typeset()
-    // }
-
-    /**
-     * Update the jax, force update if the display mode changed
-     */
-    // componentDidUpdate(prevProps) {
-    //     const forceUpdate = prevProps.inline !== this.props.inline || prevProps.children !== this.props.children
-    //     this.typeset(forceUpdate)
-    // }
-
-    /**
-     * Prevent update when the source has not changed
-     */
-    shouldComponentUpdate(nextProps, nextState, nextContext) {
-        return (
-            nextProps.children !== this.props.children ||
-            nextProps.inline !== this.props.inline
-        )
+    constructor(props) {
+        super(props);
+        this.node = React.createRef()
     }
 
-    /**
-     * Clear the math when unmounting the node
-     */
-    componentWillUnmount() {
-        this.clear()
+    componentDidMount() {
+        this.renderMath()
     }
 
-    /**
-     * Clear the jax
-     */
-    clear() {
-        const MathJax = this.context.MathJax
-
-        if (!this.script) {
-            return
-        }
-
-        const jax = MathJax.Hub.getJaxFor(this.script)
-
-        if (jax) {
-            jax.Remove()
-        }
+    componentDidUpdate() {
+        this.renderMath()
     }
 
-    typeset(text) {
-        const { MathJax } = this.context
+    renderMath() {
+        const { MathJax } = this.context;
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.node.current]);
+    }
 
+    updateMath(tex) {
+        const { MathJax } = this.context;
         if (!MathJax) {
             throw Error("Could not find MathJax while attempting typeset! Probably MathJax script hasn't been loaded or MathJax.Context is not in the hierarchy")
         }
 
-        this.clear()
-        this.setScriptText(text)
-        MathJax.Hub.Queue(
-            MathJax.Hub.Reprocess(this.script, this.props.onRender)
-        );
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.node.current]);
+        var math = MathJax.Hub.getAllJax("MathOutput")[0];
+        MathJax.Hub.queue.Push([
+            "Text",
+            math,
+            "\\displaystyle{" + tex + "}"
+        ]);
     }
 
-    /**
-     * Create a script
-     * @param { String } text
-     */
-    setScriptText(text) {
-        console.log("-------")
-        console.log(text)
-        const inline = this.props.inline
-        const type = types[this.context.input]
-        if (!this.script) {
-            this.script = document.createElement('script')
-            this.script.type = `math/${type}; ${inline ? '' : 'mode=display'}`
-            this.refs.node.appendChild(this.script)
-        }
-
-        if ('text' in this.script) {
-            // IE8, etc
-            this.script.text = text
-        } else {
-            this.script.textContent = text
-        }
+    saveJpeg() {
+        const svg = document.getElementById("foo").innerHTML.trim();
+        const canvas = document.createElement('canvas');
+        canvg(canvas, svg);
+        canvas.toBlob(function(blob) {
+            saveAs(blob, "pretty-image.jpg");
+        });
     }
 
     render() {
         return (
-            <div ref="node" className="Text">
-                <input type="text" onChange={event => this.typeset(event.target.value)} />
+            <div>
+                <div ref="node" className="Text">
+                    <input
+                        id="MathInput"
+                        size="50"
+                        onChange={event => this.updateMath(event.target.value)}
+                    />
+                </div>
+                <div id="MathOutput">
+                    You typed: ${}$
+                </div>
+                <div class="Save">
+                    <button onClick={() => this.saveJpeg()}>save as jpeg</button>
+                </div>
             </div>
         )
     }
 }
 
 Node.propTypes = {
-    inline: PropTypes.bool,
     children: PropTypes.node.isRequired,
-    onRender: PropTypes.func
-}
+};
 
 Node.contextTypes = {
     MathJax: PropTypes.object,
-    input: PropTypes.string
-}
-
-Node.defaultProps = {
-    inline: false,
-    onRender: function onRender() {}
-}
+};
 
 export default Node

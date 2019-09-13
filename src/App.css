@@ -6,6 +6,10 @@
     background-color: lightgrey;
 }
 
+.Text {
+    margin-bottom: 20px;
+}
+
 .Text, .Text input {
     width: 100%;
     margin: auto;
