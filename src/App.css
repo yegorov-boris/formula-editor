@@ -16,5 +16,14 @@
 }
 
 .Menu {
+    margin-top: 20px;
+}
+
+.MenuItem {
     display: inline;
+}
+
+.Tooltips {
+    margin: 20px;
+    width: 40%;
 }

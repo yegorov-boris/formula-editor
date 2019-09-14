@@ -3,15 +3,31 @@ import './App.css';
 import MathJax from './MathJax'
 import canvg from 'canvg'
 import { saveAs } from 'file-saver'
+import Select from "react-select";
 
 class App extends Component {
     constructor(props) {
         super(props);
+        const options = [
+            { value: "\\sqrt", label: "квадратный корень" },
+            { value: "\\over", label: "дробь" },
+            { value: "\\pm", label: "\u00B1" }
+        ];
         this.state = {
-            math: '$${-b \\pm \\sqrt{b^2-4ac} \\over 2a}$$'
+            math: '',
+            selectionStart: 0,
+            selectionEnd: 0,
+            select: {
+                value: null,
+                options
+            }
         };
         this.handleChange = this.handleChange.bind(this);
         this.load = this.load.bind(this);
+        this.saveJpeg = this.saveJpeg.bind(this);
+        this.saveTxt = this.saveTxt.bind(this);
+        this.addFormulaElement = this.addFormulaElement.bind(this);
+        this.setSelection = this.setSelection.bind(this);
     }
 
     handleChange({target}) {
@@ -41,24 +57,64 @@ class App extends Component {
         reader.readAsText(target.files[0]);
     }
 
+    addFormulaElement({value}) {
+        this.setState(({math, selectionStart, selectionEnd}) => {
+            const start = selectionStart + value.length;
+            return {
+                math: `${math.substr(0, selectionStart)} ${value} ${math.substr(selectionEnd)}`,
+                selectionStart: start,
+                selectionEnd: start,
+            }
+        });
+        this.setValue(null);
+    }
+
+    setSelection({target}) {
+        this.setState(() => ({
+            selectionStart: target.selectionStart,
+            selectionEnd: target.selectionEnd,
+        }))
+    }
+
+    setValue(value) {
+        this.setState(prevState => ({
+            select: {
+                ...prevState.select,
+                value
+            }
+        }));
+    };
+
     render() {
+        const { select } = this.state;
+
         return (
             <div className="App">
-                <div ref="node" className="Text">
+                <div className="Text">
                     <input
                         id="MathInput"
                         size="50"
                         onChange={this.handleChange}
+                        onPointerUp={this.setSelection}
+                        onKeyUp={this.setSelection}
                         value={this.state.math}
                     />
                 </div>
-                <div>
-                    <div className="Menu">
+                <div className="Tooltips">
+                    <Select
+                        placeholder="добавить элемент"
+                        value={select.value}
+                        onChange={this.addFormulaElement}
+                        options={select.options}
+                    />
+                </div>
+                <div className="Menu">
+                    <div className="MenuItem">
                         <input type="file" onChange={this.load}/>
                     </div>
-                    <div className="Menu">
-                        <button onClick={() => this.saveJpeg()}>save as jpeg</button>
-                        <button onClick={() => this.saveTxt()}>save as txt</button>
+                    <div className="MenuItem">
+                        <button onClick={this.saveJpeg}>сохранить как jpeg</button>
+                        <button onClick={this.saveTxt}>сохранить как txt</button>
                     </div>
                 </div>
                 <div>
