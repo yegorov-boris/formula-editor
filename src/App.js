@@ -11,6 +11,7 @@ class App extends Component {
             math: '$${-b \\pm \\sqrt{b^2-4ac} \\over 2a}$$'
         };
         this.handleChange = this.handleChange.bind(this);
+        this.load = this.load.bind(this);
     }
 
     handleChange({target}) {
@@ -34,6 +35,12 @@ class App extends Component {
         saveAs(blob, Date.now() + ".txt");
     }
 
+    load({target}) {
+        const reader = new FileReader();
+        reader.onload = ({target}) => this.setState(() => ({math: target.result}));
+        reader.readAsText(target.files[0]);
+    }
+
     render() {
         return (
             <div className="App">
@@ -42,11 +49,17 @@ class App extends Component {
                         id="MathInput"
                         size="50"
                         onChange={this.handleChange}
+                        value={this.state.math}
                     />
                 </div>
-                <div className="Save">
-                    <button onClick={() => this.saveJpeg()}>save as jpeg</button>
-                    <button onClick={() => this.saveTxt()}>save as txt</button>
+                <div>
+                    <div className="Menu">
+                        <input type="file" onChange={this.load}/>
+                    </div>
+                    <div className="Menu">
+                        <button onClick={() => this.saveJpeg()}>save as jpeg</button>
+                        <button onClick={() => this.saveTxt()}>save as txt</button>
+                    </div>
                 </div>
                 <div>
                     <MathJax math={this.state.math} />

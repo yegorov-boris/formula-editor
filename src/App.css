@@ -14,3 +14,7 @@
     width: 100%;
     margin: auto;
 }
+
+.Menu {
+    display: inline;
+}
