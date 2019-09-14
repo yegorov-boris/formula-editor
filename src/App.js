@@ -29,6 +29,11 @@ class App extends Component {
         });
     }
 
+    saveTxt() {
+        const blob = new Blob([this.state.math], {type: "text/plain;charset=utf-8"});
+        saveAs(blob, Date.now() + ".txt");
+    }
+
     render() {
         return (
             <div className="App">
@@ -41,6 +46,7 @@ class App extends Component {
                 </div>
                 <div className="Save">
                     <button onClick={() => this.saveJpeg()}>save as jpeg</button>
+                    <button onClick={() => this.saveTxt()}>save as txt</button>
                 </div>
                 <div>
                     <MathJax math={this.state.math} />
