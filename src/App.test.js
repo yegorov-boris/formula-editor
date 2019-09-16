@@ -1,17 +1,17 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import TestUtils from 'react-dom/test-utils';
-import App from './App'
+import puppeteer from 'puppeteer';
 
-it('renders without crashing', done => {
-    const wrapper = document.createElement('div');
-    ReactDOM.render(
-        <App />,
-        wrapper
-    );
-    const input = wrapper.querySelector('#MathInput');
-    TestUtils.Simulate.change(input, { target: { value: 'x' } });
-    const button = wrapper.querySelector('#SaveJpeg');
-    TestUtils.Simulate.click(button);
-    setTimeout(done, 100);
+it('renders without crashing', () => {
+    return (async () => {
+        const browser = await puppeteer.launch({
+            headless: false
+        });
+        const page = await browser.newPage();
+        await page.goto('http://localhost:5000');
+        await page.focus('#MathInput');
+        page.keyboard.type('x');
+        await new Promise(r => setTimeout(r, 100));
+        await page.click('#SaveJpeg');
+        await new Promise(r => setTimeout(r, 300));
+        await browser.close();
+    })()
 });

@@ -36,7 +36,7 @@ class App extends Component {
     }
 
     saveJpeg() {
-        const el = document.getElementsByClassName('base')[0];
+        const el = document.getElementById('react-mathjax-preview');
         htmlToImage.toBlob(el)
             .then(function (blob) {
                 saveAs(blob, Date.now() + ".jpg");
@@ -115,7 +115,7 @@ class App extends Component {
                     </div>
                 </div>
                 <div>
-                    <MathJax ref="MathJax" math={this.state.math} />
+                    <MathJax math={this.state.math} />
                 </div>
             </div>
         );

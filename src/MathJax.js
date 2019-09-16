@@ -33,7 +33,7 @@ export default class extends Component {
     }
 
     renderMath() {
-        katex.render(this.props.math, this.preview);
+        katex.render(this.props.math, this.preview, {output: 'html'});
     }
 
     componentWillReceiveProps(nextProps) {
