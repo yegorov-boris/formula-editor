@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
 import './App.css';
 import MathJax from './MathJax'
-import canvg from 'canvg'
 import { saveAs } from 'file-saver'
 import Select from "react-select";
+import htmlToImage from 'html-to-image';
 
 class App extends Component {
     constructor(props) {
@@ -36,14 +36,11 @@ class App extends Component {
     }
 
     saveJpeg() {
-        const svg = document
-            .getElementsByClassName('MathJax_SVG')[0]
-            .innerHTML.trim();
-        const canvas = document.createElement('canvas');
-        canvg(canvas, svg);
-        canvas.toBlob(function(blob) {
-            saveAs(blob, Date.now() + ".jpg");
-        });
+        const el = document.getElementsByClassName('base')[0];
+        htmlToImage.toBlob(el)
+            .then(function (blob) {
+                saveAs(blob, Date.now() + ".jpg");
+            });
     }
 
     saveTxt() {
@@ -113,12 +110,12 @@ class App extends Component {
                         <input type="file" onChange={this.load}/>
                     </div>
                     <div className="MenuItem">
-                        <button onClick={this.saveJpeg}>сохранить как jpeg</button>
+                        <button id="SaveJpeg" onClick={this.saveJpeg}>сохранить как jpeg</button>
                         <button onClick={this.saveTxt}>сохранить как txt</button>
                     </div>
                 </div>
                 <div>
-                    <MathJax math={this.state.math} />
+                    <MathJax ref="MathJax" math={this.state.math} />
                 </div>
             </div>
         );

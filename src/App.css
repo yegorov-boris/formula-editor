@@ -27,3 +27,7 @@
     margin: 20px;
     width: 40%;
 }
+
+#react-mathjax-preview {
+    padding: 20px;
+}
