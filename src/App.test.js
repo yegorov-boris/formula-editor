@@ -93,6 +93,28 @@ describe('formula-editor', () => {
             expect(isEqual).toBeTruthy();
         }
     })());
+
+    it('should render TeX from file', () => (async () => {
+        for (const i in [0, 1]) {
+            const text = fs.readFileSync(path.join(testDataPath, 'expected', `${i}.txt`)).toString();
+            await clear(page, '#MathInput');
+            await page.keyboard.type(text);
+            await delay(100);
+            await page.click('#SaveJpeg');
+            await delay(1000);
+            const files = fs.readdirSync(testDataPath);
+            const expected = fs.readFileSync(path.join(testDataPath, 'expected', `${i}.jpg`));
+            const pathActual = path.join(testDataPath, files[1]);
+            const actual = fs.readFileSync(pathActual);
+            fs.unlinkSync(pathActual);
+            expect(expected.length).toEqual(actual.length);
+            var isEqual = true;
+            expected.forEach((data, j) => {
+                if (data !== actual[j]) isEqual = false;
+            });
+            expect(isEqual).toBeTruthy();
+        }
+    })());
 });
 
 async function clear(page, selector) {
