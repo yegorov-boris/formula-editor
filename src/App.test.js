@@ -5,8 +5,7 @@ import puppeteer from 'puppeteer';
 describe('formula-editor', () => {
     const testDataPath = './test-data';
     const hardcoded = [
-        'abc',
-        // '{-b \\pm \\sqrt{b^2-4ac} \\over 2a}'
+        '{-b \\pm \\sqrt{b^2-4ac} \\over 2a}',
     ];
     var browser;
     var page;
@@ -28,13 +27,15 @@ describe('formula-editor', () => {
     it('should render TeX entered by hand', () => (async () => {
         for (const i in hardcoded) {
             await page.focus('#MathInput');
-            page.keyboard.type(hardcoded[i]);
+            await page.keyboard.type(hardcoded[i]);
             await delay(50);
             await page.click('#SaveJpeg');
-            await delay(500);
+            await delay(1000);
             const files = fs.readdirSync(testDataPath);
             const expected = fs.readFileSync(path.join(testDataPath, 'expected', `${i}.jpg`));
-            const actual = fs.readFileSync(path.join(testDataPath, files[1]));
+            const pathActual = path.join(testDataPath, files[1]);
+            const actual = fs.readFileSync(pathActual);
+            fs.unlinkSync(pathActual);
             expect(expected.length).toEqual(actual.length);
             var isEqual = true;
             expected.forEach((data, j) => {
