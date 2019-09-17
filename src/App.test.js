@@ -56,6 +56,18 @@ describe('formula-editor', () => {
 
         '\\subset \\supset \\subseteq \\supseteq',
     ];
+    const hardcodedIncorrect = [
+        '{-b \\pm \\sqrt{b^2-4ac} \\over 2a',
+        '-b \\pm \\sqrt{b^2-4ac} \\over 2a}',
+        '{-b \\pm \\sqrt{b^2-4ac} \\over \\over 2a}',
+        '{-b \\pm \\sqrt \\sqrt{b^2-4ac} \\over 2a',
+        '{\\foo \\pm \\sqrt{b^2-4ac} \\over 2a}',
+        '\\equation {-b \\pm \\sqrt{b^2-4ac} \\over 2a}',
+        '{-b \\pm \\sqrt{b^2-4ac} \\over $2a}',
+        '{-b \\pm \\sqrt{b^2^2-4ac} \\over 2a}',
+        '{}',
+        '\\(\\)',
+    ];
     var browser;
     var page;
 
@@ -113,6 +125,18 @@ describe('formula-editor', () => {
                 if (data !== actual[j]) isEqual = false;
             });
             expect(isEqual).toBeTruthy();
+        }
+    })());
+
+    it('should not render incorrect text', () => (async () => {
+        for (const text of hardcodedIncorrect) {
+            await clear(page, '#MathInput');
+            await page.keyboard.type(text);
+            await delay(100);
+            const renderedText = await page.evaluate(
+                () => document.getElementById('react-mathjax-preview').textContent
+            );
+            expect(renderedText).toEqual('');
         }
     })());
 });
