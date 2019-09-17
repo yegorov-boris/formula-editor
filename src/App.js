@@ -88,9 +88,8 @@ class App extends Component {
         return (
             <div className="App">
                 <div className="Text">
-                    <input
+                    <textarea
                         id="MathInput"
-                        size="50"
                         onChange={this.handleChange}
                         onPointerUp={this.setSelection}
                         onKeyUp={this.setSelection}
