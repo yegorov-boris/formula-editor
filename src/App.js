@@ -94,6 +94,8 @@ class App extends Component {
                         onPointerUp={this.setSelection}
                         onKeyUp={this.setSelection}
                         value={this.state.math}
+                        rows="15"
+                        cols="50"
                     />
                 </div>
                 <div className="Tooltips">
